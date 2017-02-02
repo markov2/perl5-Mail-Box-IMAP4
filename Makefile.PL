@@ -4,30 +4,24 @@ require 5.010;
 
 use IO::Handle;
 
-my $VERSION = '3.000';
+my $VERSION = '3.001';
 
 my %prereq =
-  ( Date::Parse      => 0
-  , Digest::HMAC_MD5 => 0
+  ( Carp             => 0
   , Digest::MD5      => 0
-  , File::Compare    => 0
-  , File::Copy       => 0
+  , File::Basename   => 0
   , File::Spec       => 0
+  , IO::Socket       => 0
   , List::Util       => 0
-  , Mail::IMAPClient => 0
-  , Scalar::Util     => 0
+  , Socket           => 0
   , Test::More       => 0
 
-  , Mail::Box::Manage::User       => 3
+  , Mail::Box::FastScalar         => 3
   , Mail::Box::Net                => 3
-  , Mail::Box::Search             => 3
   , Mail::Box::Test               => 3
-  , Mail::Message                 => 3
-  , Mail::Message::Body::Lines    => 3
-  , Mail::Message::Head::Complete => 3
-  , Mail::Message::Head::Delayed  => 3
-  , Mail::Server                  => 3
+  , Mail::Box::Parser::Perl       => 3
   , Mail::Transport::Receive      => 3
+  , Mail::Reporter                => 3
   );
 
 foreach my $module (sort keys %prereq)
