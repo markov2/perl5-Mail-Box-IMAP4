@@ -1,9 +1,12 @@
-
-use strict;
-use warnings;
+# This code is part of distribution Mail-Box-IMAP4.  Meta-POD processed with
+# OODoc into POD and HTML manual-pages.  See README.md
+# Copyright Mark Overmeer.  Licensed under the same terms as Perl itself.
 
 package Mail::Server::IMAP4::User;
 use base 'Mail::Box::Manage::User';
+
+use strict;
+use warnings;
 
 =chapter NAME
 
@@ -15,7 +18,7 @@ Mail::Server::IMAP4::User - manage the folders of one user
 
 =chapter DESCRIPTION
 
-This class adds IMAP protocal features to the normal M<Mail::Box::Manager>.
+This class adds IMAP protocol features to the normal M<Mail::Box::Manager>.
 
 =chapter METHODS
 

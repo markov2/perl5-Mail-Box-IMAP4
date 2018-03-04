@@ -1,9 +1,12 @@
-
-use strict;
-use warnings;
+# This code is part of distribution Mail-Box-IMAP4.  Meta-POD processed with
+# OODoc into POD and HTML manual-pages.  See README.md
+# Copyright Mark Overmeer.  Licensed under the same terms as Perl itself.
 
 package Mail::Transport::IMAP4;
 use base 'Mail::Transport::Receive';
+
+use strict;
+use warnings;
 
 use Digest::HMAC_MD5;   # only availability check for CRAM_MD5
 use Mail::IMAPClient;
@@ -22,7 +25,7 @@ Mail::Transport::IMAP4 - proxy to Mail::IMAPClient
 =chapter DESCRIPTION
 
 The IMAP4 protocol is quite complicated: it is feature rich and allows
-verious asynchronous actions.  The main document describing IMAP is
+various asynchronous actions.  The main document describing IMAP is
 rfc3501 (which obsoleted the original specification of protocol 4r1
 in rfc2060 in March 2003).
 

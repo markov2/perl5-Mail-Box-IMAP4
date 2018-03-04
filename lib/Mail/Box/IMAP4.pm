@@ -1,9 +1,12 @@
-
-use strict;
-use warnings;
+# This code is part of distribution Mail-Box-IMAP4.  Meta-POD processed with
+# OODoc into POD and HTML manual-pages.  See README.md
+# Copyright Mark Overmeer.  Licensed under the same terms as Perl itself.
 
 package Mail::Box::IMAP4;
 use base 'Mail::Box::Net';
+
+use strict;
+use warnings;
 
 use Mail::Box::IMAP4::Message;
 use Mail::Box::IMAP4::Head;
@@ -118,7 +121,7 @@ header access.  A M<Mail::Message::Head::Delayed> will be created first.
 Body objects are immutable, but may still cached or not.  In common
 case, the body of a message is requested via M<Mail::Message::body()>
 or M<Mail::Message::decoded()>.  This returns a handle to a body object.
-You may decide wether that body object can be reused or not.  C<NO>
+You may decide whether that body object can be reused or not.  C<NO>
 means: retrieve the data each time again, C<YES> will cache the body data,
 C<DELAY> will send the whole message when the folder is closed.
 

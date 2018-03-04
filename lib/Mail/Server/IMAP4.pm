@@ -1,9 +1,12 @@
-
-use strict;
-use warnings;
+# This code is part of distribution Mail-Box-IMAP4.  Meta-POD processed with
+# OODoc into POD and HTML manual-pages.  See README.md
+# Copyright Mark Overmeer.  Licensed under the same terms as Perl itself.
 
 package Mail::Server::IMAP4;
 use base 'Mail::Server';
+
+use strict;
+use warnings;
 
 use Mail::Server::IMAP4::List;
 use Mail::Server::IMAP4::Fetch;
@@ -33,7 +36,7 @@ used to capture "FETCH" related information from a message, and produce
 server-side FETCH answers.
 
 =item * M<Mail::Server::IMAP4::List>
-produce LIST reponses about existing folders.  This works
+produce LIST responses about existing folders.  This works
 in combination with a M<Mail::Box::Manage::User> object.
 
 =item * M<Mail::Server::IMAP4::Search>

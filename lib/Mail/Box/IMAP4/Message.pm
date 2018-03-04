@@ -1,9 +1,12 @@
-
-use strict;
-use warnings;
+# This code is part of distribution Mail-Box-IMAP4.  Meta-POD processed with
+# OODoc into POD and HTML manual-pages.  See README.md
+# Copyright Mark Overmeer.  Licensed under the same terms as Perl itself.
 
 package Mail::Box::IMAP4::Message;
 use base 'Mail::Box::Net::Message';
+
+use strict;
+use warnings;
 
 use Date::Parse 'str2time';
 
@@ -93,7 +96,7 @@ more that one argument, the list is interpreted a label-value PAIRS
 to be set.
 
 The IMAP protocol defines its own names for the labels, which must
-be set imediately to inform other IMAP clients which may have the
+be set immediately to inform other IMAP clients which may have the
 same folder open. But that can be changed with M<new(write_labels)>.
 Some labels are translated to the corresponding IMAP system labels. 
 

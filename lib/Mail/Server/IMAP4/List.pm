@@ -1,8 +1,11 @@
+# This code is part of distribution Mail-Box-IMAP4.  Meta-POD processed with
+# OODoc into POD and HTML manual-pages.  See README.md
+# Copyright Mark Overmeer.  Licensed under the same terms as Perl itself.
+
+package Mail::Server::IMAP4::List;
 
 use strict;
 use warnings;
-
-package Mail::Server::IMAP4::List;
 
 =chapter NAME
 
@@ -32,8 +35,8 @@ a certain user, based upon a set of folders.  The data is kept by
 M<Mail::Box::Identity> and M<Mail::Box::Collection> objects, which
 mean that the folders will not be opened to answer these questions.
 
-=option  delimeter STRING|CODE
-=default delimeter '/'
+=option  delimiter STRING|CODE
+=default delimiter '/'
 Either the constant delimiter, or a code reference which will get passed
 a folder name and should return the delimiter string used in that name.
 If that folder name is empty, the default delimiter must be reported.
@@ -76,7 +79,7 @@ sub new($)
 Returns the delimiter string.  The foldername is only required when a
 CODE reference was specified at initiation.
 
-=example setting-up an IMAP4 delimeter
+=example setting-up an IMAP4 delimiter
  sub delim($)
  {   my $path = shift;
      my ($delim, $root)
