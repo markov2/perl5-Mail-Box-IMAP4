@@ -3,6 +3,9 @@
 
 version 3.004:
 
+	Fixes:
+	- xt/99pod.t was missing from git
+
 version 3.003: Sun Mar  4 14:58:04 CET 2018
 
 	Improvements:
