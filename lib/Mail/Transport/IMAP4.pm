@@ -89,8 +89,8 @@ sub init($)
     if(ref $imap)
     {   $args->{port}     = $imap->Port;
         $args->{hostname} = $imap->Server;
-	$args->{username} = $imap->User;
-	$args->{password} = $imap->Password;
+        $args->{username} = $imap->User;
+        $args->{password} = $imap->Password;
     }
     else
     {   $args->{port}   ||= 143;
@@ -110,6 +110,7 @@ sub init($)
  
     $self->imapClient($imap) or return undef;
     $self->login             or return undef;
+    $self;
 }
 
 =method url
@@ -153,7 +154,7 @@ L<Mail::IMAPClient/authenticate> for the gory details.
  $transporter->authentication('CRAM-MD5', [MY_AUTH => \&c], 'PLAIN');
 
  foreach my $pair ($transporter->authentication)
- {   my ($mechanism, $challange) = @$pair;
+ {   my ($mechanism, $challenge) = @$pair;
      ...
  }
 
@@ -294,10 +295,11 @@ sub login(;$)
         return;
     }
 
+    my $warn_fail;
     while(1)
     {
         foreach my $auth ($self->authentication)
-        {   my ($mechanism, $challange) = @$auth;
+        {   my ($mechanism, $challenge) = @$auth;
 
             $imap->User(undef);
             $imap->Password(undef);
@@ -305,26 +307,30 @@ sub login(;$)
             $imap->Authcallback(undef);
 
             unless($imap->connect)
-	    {   $self->log(ERROR => "IMAP cannot connect to $host: "
-	                          , $imap->LastError);
-		return undef;
-	    }
+            {   $self->log(ERROR => "IMAP cannot connect to $host: "
+                  , $imap->LastError);
+                return undef;
+            }
 
             $imap->User($username);
             $imap->Password($password);
             $imap->Authmechanism($mechanism);
-            $imap->Authcallback($challange) if defined $challange;
+            $imap->Authcallback($challenge) if defined $challenge;
 
             if($imap->login)
             {
-	       $self->log(NOTICE =>
-        "IMAP4 authenication $mechanism to $username\@$host:$port successful");
+                $self->log(NOTICE => "IMAP4 authenication $mechanism to "
+                    . "$username\@$host:$port successful");
                 return $self;
             }
         }
 
         $self->log(ERROR => "Couldn't contact to $username\@$host:$port")
             , return undef if $retries > 0 && --$retries == 0;
+
+        $warn_fail++
+            or $self->log(WARNING => "Failed attempt to login $username\@$host"
+                . ", retrying ".($retries+1)." times");
 
         sleep $interval if $interval;
     }
@@ -498,11 +504,11 @@ sub setFlags($@)
         if(my $r = $labels2flags{$label})
         {   my $flag = $r->[0];
             $value = $value ? $r->[1] : !$r->[1];
-	        # exor can not be used, because value may be string
+            # exor can not be used, because value may be string
             $value ? (push @set, $flag) : (push @unset, $flag);
         }
-	else
-	{   push @nonstandard, ($label => $value);
+        else
+        {   push @nonstandard, ($label => $value);
         }
     }
 
@@ -642,12 +648,12 @@ sub fetch($@)
     while(@$lines)
     {   my $line = shift @$lines;
         next unless $line =~ /\(.*?UID\s+(\d+)/i;
-	my $id   = $+;
-	my $info = $msgs{$id} or next;  # wrong uid
+        my $id   = $+;
+        my $info = $msgs{$id} or next;  # wrong uid
 
         if($line =~ s/^[^(]* \( \s* //x )
         {   while($line =~ s/(\S+)   # field
-	                     \s+
+                              \s+
                              (?:     # value
                                  \" ( (?:\\.|[^"])+ ) \"
                                | \( ( (?:\\.|[^)])+ ) \)
@@ -656,16 +662,16 @@ sub fetch($@)
             {   $info->{uc $1} = $+;
             }
 
-	    if( $line =~ m/^\s* (\S+) [ ]*$/x )
-	    {   # Text block expected
-	        my ($key, $value) = (uc $1, '');
-	        while(@$lines)
-		{   my $extra = shift @$lines;
-		    $extra =~ s/\r\n$/\n/;
-		    last if $extra eq ")\n";
-		    $value .= $extra;
-		}
-		$info->{$key} = $value;
+            if( $line =~ m/^\s* (\S+) [ ]*$/x )
+            {   # Text block expected
+                my ($key, $value) = (uc $1, '');
+                while(@$lines)
+                {   my $extra = shift @$lines;
+                    $extra =~ s/\r\n$/\n/;
+                    last if $extra eq ")\n";
+                    $value .= $extra;
+                }
+                $info->{$key} = $value;
             }
         }
 

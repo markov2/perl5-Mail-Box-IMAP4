@@ -24,8 +24,13 @@ Mail::Box::IMAP4 - handle IMAP4 folders as client
 
 =chapter SYNOPSIS
 
+ my $url = 'imap://user:passwd@host:port/INBOX';
  use Mail::Box::IMAP4;
- my $folder = Mail::Box::IMAP4->new(folder => $ENV{MAIL}, ...);
+ my $folder = Mail::Box::IMAP4->new(folder => $url, ...);
+
+ use Mail::Box::Manager;
+ my $mgr    = Mail::Box::Manager->new;
+ my $folder = $msg->open($url, retry => 3, interval => 5);
 
 =chapter DESCRIPTION
 
@@ -147,6 +152,7 @@ sub init($)
 
     my $folder = $args->{folder};
 
+warn "#1";
     # MailBox names top folder directory '=', but IMAP needs '/'
     $folder = '/'
         if ! defined $folder || $folder eq '=';
