@@ -11,6 +11,7 @@ lib/Mail/Server/IMAP4/List.pm
 lib/Mail/Server/IMAP4/Search.pm
 lib/Mail/Server/IMAP4/User.pm
 lib/Mail/Transport/IMAP4.pm
+lib/Mail/Transport/IMAP4s.pm
 t/10client-read.t
 t/11client-write.t
 t/12client-flags.t
