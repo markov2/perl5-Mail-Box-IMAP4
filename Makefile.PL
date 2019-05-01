@@ -13,6 +13,7 @@ my %prereq =
   , File::Compare    => 0
   , File::Copy       => 0
   , File::Spec       => 0
+  , IO::Socket::IP   => 0
   , List::Util       => 0
   , Mail::IMAPClient => 3.42
   , Scalar::Util     => 0
