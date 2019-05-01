@@ -77,9 +77,11 @@ When a CLASS is given, an object of that type is created for you.  The created
 object can be retrieved via M<imapClient()>, and than configured as
 defined by L<Mail::IMAPClient|Mail::IMAPClient>.
 
-=option  starttls BOOLEAN
-=default starttls C<false>
-tart Transport Security Layer (TLS).
+=option  ssl BOOLEAN
+=default ssl C<false>
+[3.004] Start the connection with SSL (StartTLS)
+The old name for this option is 'starttls', and is still supported.
+
 =cut
 
 sub init($)
@@ -96,15 +98,16 @@ sub init($)
     {   $args->{port}   ||= 143;
     }
 
-    $args->{via}          = 'imap4';
+    $args->{via}        ||= 'imap4';
 
     $self->SUPER::init($args) or return;
 
     $self->authentication($args->{authenticate} || 'AUTO');
     $self->{MTI_domain} = $args->{domain};
+    $self->{MTI_ssl} = exists $args->{ssl} ? $args->{ssl} : $args->{starttls};
 
     unless(ref $imap)
-    {   $imap = $self->createImapClient($imap, Starttls => $args->{starttls})
+    {   $imap = $self->createImapClient($imap)
              or return undef;
     }
  
@@ -113,20 +116,23 @@ sub init($)
     $self;
 }
 
-=method url
-Represent this imap4 connection as URL.
-=cut
-
 sub url()
 {   my $self = shift;
     my ($host, $port, $user, $pwd) = $self->remoteHost;
     my $name = $self->folderName;
-    "imap4://$user:$pwd\@$host:$port$name";
+    my $proto = $self->useSSL ? 'imap4s' : 'imap4';
+    "$proto://$user:$pwd\@$host:$port$name";
 }
 
 #------------------------------------------
 
 =section Attributes
+
+=method useSSL
+
+=cut
+
+sub useSSL() { shift->{MTI_ssl} }
 
 =method authentication ['AUTO'|$type|$types]
 Returns a LIST of ARRAYS, each describing one possible way to contact
@@ -259,6 +265,7 @@ sub createImapClient($@)
       , User   => undef, Password => undef   # disable auto-login
       , Uid    => 1                          # Safer
       , Peek   => 1                          # Don't set \Seen automaticly
+      , Starttls => $self->useSSL
       , @args
       );
 
@@ -730,6 +737,7 @@ sub deleteFolder($)
     $imap->delete(shift);
 }
 
+#------------------------------------------
 =section Error handling
 
 =section Cleanup

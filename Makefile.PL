@@ -14,10 +14,11 @@ my %prereq =
   , File::Copy       => 0
   , File::Spec       => 0
   , List::Util       => 0
-  , Mail::IMAPClient => 0
+  , Mail::IMAPClient => 3.42
   , Scalar::Util     => 0
   , Test::More       => 0
 
+  , Mail::Box                     => 3.007
   , Mail::Box::Manage::User       => 3
   , Mail::Box::Net                => 3
   , Mail::Box::Search             => 3

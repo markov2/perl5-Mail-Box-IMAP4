@@ -24,7 +24,7 @@ Mail::Box::IMAP4 - handle IMAP4 folders as client
 
 =chapter SYNOPSIS
 
- my $url = 'imap://user:passwd@host:port/INBOX';
+ my $url = 'imap4://user:passwd@host:port/INBOX';
  use Mail::Box::IMAP4;
  my $folder = Mail::Box::IMAP4->new(folder => $url, ...);
 
@@ -152,7 +152,6 @@ sub init($)
 
     my $folder = $args->{folder};
 
-warn "#1";
     # MailBox names top folder directory '=', but IMAP needs '/'
     $folder = '/'
         if ! defined $folder || $folder eq '=';
@@ -226,6 +225,7 @@ sub foundIn(@)
 
 sub type() {'imap4'}
 
+
 =method close %options
 Close the folder.  In the case of IMAP, more than one folder can use
 the same connection, therefore, closing a folder does not always close
@@ -255,7 +255,6 @@ sub listSubFolders(@)
 sub nameOfSubfolder($;$) { $_[1] }
 
 #-------------------------------------------
-
 =section Internals
 
 =cut
@@ -307,6 +306,7 @@ sub readMessages(@)
     $self;
 }
  
+
 =method getHead $message
 Read the header for the specified message from the remote server.
 C<undef> is returned in case the message disappeared.
@@ -335,6 +335,7 @@ sub getHead($)
     $self->log(PROGRESS => "Loaded head of $uidl.");
     $head;
 }
+
 
 =method getHeadAndBody $message
 Read all data for the specified message from the remote server.
@@ -391,6 +392,7 @@ sub getHeadAndBody($)
     ($head, $body->contentInfoFrom($head));
 }
 
+
 =method body [$body]
 =cut
 
@@ -403,6 +405,7 @@ sub body(;$)
     $self->unique();
     $self->SUPER::body(@_);
 }
+
 
 =method write %options
 The IMAP protocol usually writes the data immediately to the remote server,
@@ -442,6 +445,7 @@ sub delete(@)
     $transp->deleteFolder($self->name);
 }
 
+
 =method writeMessages %options
 =requires transporter OBJECT
 =cut
@@ -456,6 +460,7 @@ sub writeMessages($@)
 
     $self;
 }
+
 
 =method createTransporter $class, %options
 Create a transporter object (an instance of M<Mail::Transport::IMAP4>), where
@@ -501,6 +506,7 @@ sub createTransporter($@)
     $transporter;
 }
 
+
 =method transporter [$object]
 Returns the object which is the interface to the IMAP4 protocol handler.
 The IMAP4 handler has the current folder selected.
@@ -538,6 +544,7 @@ sub transporter(;$)
     undef;
 }
 
+
 =method fetch <$messages|$selection>, $info
 Low-level data retreival about one or more messages via IMAP4 from
 the remote server. Some of this data may differ from the information
@@ -561,6 +568,7 @@ sub fetch($@)
     $what = $self->messages($what) unless ref $what eq 'ARRAY';
     $imap->fetch($what, @info);
 }
+
 
 #-------------------------------------------
 =section Error handling
