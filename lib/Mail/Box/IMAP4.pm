@@ -25,6 +25,8 @@ Mail::Box::IMAP4 - handle IMAP4 folders as client
 =chapter SYNOPSIS
 
  my $url = 'imap4://user:passwd@host:port/INBOX';
+ my $url = 'imap://user:passwd@host:port/INBOX';
+
  use Mail::Box::IMAP4;
  my $folder = Mail::Box::IMAP4->new(folder => $url, ...);
 
@@ -289,8 +291,8 @@ sub readMessages(@)
          , folder    => $self
          , seqnr     => $seqnr++
 
-	 , cache_labels => $cl
-	 , write_labels => $wl
+         , cache_labels => $cl
+         , write_labels => $wl
          , cache_head   => ($ch eq 'DELAY')
          , cache_body   => ($ch ne 'NO')
          );

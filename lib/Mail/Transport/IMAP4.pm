@@ -77,10 +77,13 @@ When a CLASS is given, an object of that type is created for you.  The created
 object can be retrieved via M<imapClient()>, and than configured as
 defined by L<Mail::IMAPClient|Mail::IMAPClient>.
 
-=option  ssl BOOLEAN
-=default ssl C<false>
-[3.004] Start the connection with SSL (StartTLS)
-The old name for this option is 'starttls', and is still supported.
+=option  starttls BOOLEAN
+=default starttls C<false>
+Run SSL connection with StartTLS.
+
+=option  ssl \%ssl_options|\@ssl_options
+=default ssl C<undef>
+You need to pass at least an empty HASH or ARRAY to enable SSL.
 
 =cut
 
@@ -95,7 +98,7 @@ sub init($)
         $args->{password} = $imap->Password;
     }
     else
-    {   $args->{port}   ||= 143;
+    {   $args->{port}   ||= $args->{ssl} ? 993 : 143;
     }
 
     $args->{via}        ||= 'imap4';
@@ -104,10 +107,16 @@ sub init($)
 
     $self->authentication($args->{authenticate} || 'AUTO');
     $self->{MTI_domain} = $args->{domain};
-    $self->{MTI_ssl} = exists $args->{ssl} ? $args->{ssl} : $args->{starttls};
 
     unless(ref $imap)
-    {   $imap = $self->createImapClient($imap)
+    {   # Create the IMAP transporter
+        my @opts;
+        if(my $ssl = $args->{ssl})
+        {    $ssl = [ %$ssl ] if ref $ssl eq 'HASH';
+             push @opts, Starttls => $args->{starttls}, Ssl => $ssl;
+        }
+
+        $imap = $self->createImapClient($imap, @opts)
              or return undef;
     }
  
@@ -120,7 +129,7 @@ sub url()
 {   my $self = shift;
     my ($host, $port, $user, $pwd) = $self->remoteHost;
     my $name = $self->folderName;
-    my $proto = $self->useSSL ? 'imap4s' : 'imap4';
+    my $proto = $self->usesSSL ? 'imap4s' : 'imap4';
     "$proto://$user:$pwd\@$host:$port$name";
 }
 
@@ -128,11 +137,11 @@ sub url()
 
 =section Attributes
 
-=method useSSL
-
+=method usesSSL
+Returns a boolean.
 =cut
 
-sub useSSL() { shift->{MTI_ssl} }
+sub usesSSL() { shift->imapClient->Ssl }
 
 =method authentication ['AUTO'|$type|$types]
 Returns a LIST of ARRAYS, each describing one possible way to contact
@@ -171,13 +180,11 @@ sub authentication(@)
 
     # What the client wants to use to login
 
-    unless(@types)
-    {   @types = exists $self->{MTI_auth} ? @{$self->{MTI_auth}} : 'AUTO';
-    }
+    @types
+        or @types = exists $self->{MTI_auth} ? @{$self->{MTI_auth}} : 'AUTO';
 
-    if(@types == 1 && $types[0] eq 'AUTO')
-    {   @types = qw/CRAM-MD5 DIGEST-MD5 PLAIN NTLM LOGIN/;
-    }
+    @types = qw/CRAM-MD5 DIGEST-MD5 PLAIN NTLM LOGIN/
+        if @types == 1 && $types[0] eq 'AUTO';
 
     $self->{MTI_auth} = \@types;
 
@@ -185,11 +192,11 @@ sub authentication(@)
     foreach my $auth (@types)
     {   push @clientside
          , ref $auth eq 'ARRAY' ? $auth
-         : $auth eq 'NTLM'      ? [NTLM  => \&Authen::NTLM::ntlm ]
-         :                        [$auth => undef];
+         : $auth eq 'NTLM'      ? [ NTLM  => \&Authen::NTLM::ntlm ]
+         :                        [ $auth => undef ];
     }
 
-    my %clientside = map { ($_->[0] => $_) } @clientside;
+    my %clientside = map +($_->[0] => $_), @clientside;
 
     # What does the server support? in its order of preference.
 
@@ -265,7 +272,6 @@ sub createImapClient($@)
       , User   => undef, Password => undef   # disable auto-login
       , Uid    => 1                          # Safer
       , Peek   => 1                          # Don't set \Seen automaticly
-      , Starttls => $self->useSSL
       , @args
       );
 

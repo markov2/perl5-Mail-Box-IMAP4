@@ -29,7 +29,7 @@ my %prereq =
   , Mail::Message::Head::Complete => 3
   , Mail::Message::Head::Delayed  => 3
   , Mail::Server                  => 3
-  , Mail::Transport::Receive      => 3
+  , Mail::Transport::Receive      => 3.004
   );
 
 foreach my $module (sort keys %prereq)
