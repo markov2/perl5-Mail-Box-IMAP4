@@ -1,7 +1,7 @@
 
 ===== history of Mail-Box-IMAP4
 
-version 3.004:
+version 3.004: Fri  3 May 09:24:50 CEST 2019
 
 	Fixes:
 	- xt/99pod.t was missing from git

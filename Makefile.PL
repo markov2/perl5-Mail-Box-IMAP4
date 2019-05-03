@@ -88,7 +88,7 @@ sub MY::postamble { <<'__POSTAMBLE' }
 # for DIST
 RAWDIR          = ../public_html/mail-box-imap4/raw
 DISTDIR         = ../public_html/mail-box-imap4/source
-EXTENDS			= ../Mail-Message:../Mail-Transport:../../perl/MailBox4
+EXTENDS         = ../Mail-Message:../Mail-Transport:../Mail-Box
 
 # for POD
 FIRST_YEAR      = 2001
