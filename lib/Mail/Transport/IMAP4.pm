@@ -79,7 +79,7 @@ defined by L<Mail::IMAPClient|Mail::IMAPClient>.
 
 =option  starttls BOOLEAN
 =default starttls C<false>
-Run SSL connection with StartTLS.
+Run connection setup with StartTLS into an SSL connection.
 
 =option  ssl \%ssl_options|\@ssl_options
 =default ssl C<undef>
@@ -110,10 +110,11 @@ sub init($)
 
     unless(ref $imap)
     {   # Create the IMAP transporter
-        my @opts;
+        my @opts = (Starttls => $args->{starttls});
+
         if(my $ssl = $args->{ssl})
         {    $ssl = [ %$ssl ] if ref $ssl eq 'HASH';
-             push @opts, Starttls => $args->{starttls}, Ssl => $ssl;
+             push @opts, Ssl => $ssl;
         }
 
         $imap = $self->createImapClient($imap, @opts)
