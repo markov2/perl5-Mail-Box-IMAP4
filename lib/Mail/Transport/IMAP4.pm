@@ -9,7 +9,7 @@ use strict;
 use warnings;
 
 use Digest::HMAC_MD5;   # only availability check for CRAM_MD5
-use Mail::IMAPClient;
+use Mail::IMAPClient  ();
 use List::Util        qw/first/;
 
 =chapter NAME
@@ -21,6 +21,18 @@ Mail::Transport::IMAP4 - proxy to Mail::IMAPClient
  my $imap = Mail::Transport::IMAP4->new(...);
  my $message = $imap->receive($id);
  $imap->send($message);
+
+ my Mail::Box::Manager $mgr = Mail::Box::Manager->new;
+ $mgr->open(
+     # Generic folder options
+     folder => 'imaps://...',
+     access => 'rw',
+     extract => 'ALWAYS',
+
+     # Mail::IMAPClient options start with [A-Z]
+     IgnoreSizeErrors => 1,
+     Ssl => 1,
+ );
 
 =chapter DESCRIPTION
 
@@ -53,6 +65,16 @@ may get shared.  This is sharing is hidden for the user.
 When an C<imap_client> is specified, then the options C<hostname>,
 C<port>, C<username>, and C<password> are extracted from it.
 
+All %options which start with a capital are passed as initiation
+to M<Mail::IMAPClient>.  See that manual about the huge pile of
+parameters.  When talking to Microsoft Exchange, you probabaly need the
+C<IgnoreSizeErros>.  Probably, you need C<Ssl> or C<StartTLS> as well.
+As feature, you may also pass a HASH to Ssl, where C<Mail::IMAPClient>
+only accepts an ARRAY.
+
+For backwards compatibility, C<ssl> is an alternative for C<Ssl>,
+and C<starttls> for C<StartTLS>.
+
 =default port 143
 =default via  C<'imap'>
 
@@ -76,14 +98,6 @@ shall be a L<Mail::IMAPClient|Mail::IMAPClient>.
 When a CLASS is given, an object of that type is created for you.  The created
 object can be retrieved via M<imapClient()>, and than configured as
 defined by L<Mail::IMAPClient|Mail::IMAPClient>.
-
-=option  starttls BOOLEAN
-=default starttls C<false>
-Run connection setup with StartTLS into an SSL connection.
-
-=option  ssl \%ssl_options|\@ssl_options
-=default ssl C<undef>
-You need to pass at least an empty HASH or ARRAY to enable SSL.
 
 =cut
 
@@ -110,14 +124,20 @@ sub init($)
 
     unless(ref $imap)
     {   # Create the IMAP transporter
-        my @opts = (Starttls => $args->{starttls});
+        my %opts;
+		$opts{ucfirst lc} = delete $args->{$_}
+			for grep /^[A-Z]/, keys %$args;
 
-        if(my $ssl = $args->{ssl})
-        {    $ssl = [ %$ssl ] if ref $ssl eq 'HASH';
-             push @opts, Ssl => $ssl;
-        }
+		# backwards compatibility
+		$opts{Starttls}      ||= $args->{starttls};
+		my $ssl = $opts{Ssl} ||= $args->{ssl};
 
-        $imap = $self->createImapClient($imap, @opts)
+		$opts{Ssl} = [ %$ssl ] if ref $ssl eq 'HASH';
+
+use Data::Dumper;
+warn "CREATE IMAP ", Dumper \%opts;
+warn Dumper $args;
+        $imap = $self->createImapClient($imap, %opts)
              or return undef;
     }
  
