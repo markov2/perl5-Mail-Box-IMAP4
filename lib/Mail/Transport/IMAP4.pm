@@ -134,9 +134,6 @@ sub init($)
 
 		$opts{Ssl} = [ %$ssl ] if ref $ssl eq 'HASH';
 
-use Data::Dumper;
-warn "CREATE IMAP ", Dumper \%opts;
-warn Dumper $args;
         $imap = $self->createImapClient($imap, %opts)
              or return undef;
     }
