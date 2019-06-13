@@ -586,8 +586,9 @@ the latter, all standard imap flags which do not appear in the list will
 be ignored: their value may either by set or cleared.  See M<getFlags()>
 
 Unknown flags in C<@flags> are stripped from their backslash and
-lower-cased.  For instance, '\SomeWeirdFlag' will become `someweirdflag
-=> 1'.  It will be set to '1' for C<SET>, and '0' in case of C<CLEAR>.
+lower-cased.  For instance, '\SomeWeirdFlag' will become
+`someweirdflag =E<gt> 1'.  It will be set to '1' for C<SET>, and '0'
+in case of C<CLEAR>.
 
 =examples translating IMAP4 flags into MailBox flags
  my @flags  = ('\Seen', '\Flagged');
