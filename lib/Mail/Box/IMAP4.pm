@@ -141,7 +141,7 @@ C<DELAY> will send the whole message when the folder is closed.
  my $imap   = Mail::Box::IMAP4->new(username => 'myname',
     password => 'mypassword', server_name => 'imap.xs4all.nl');
 
- my $url    = 'imap4://user:password@imap.xs4all.nl');
+ my $url    = 'imap4://user:password@imap.xs4all.nl';
  my $imap   = $mgr->open($url);
 
  my $client = Mail::IMAPClient->new(...);
