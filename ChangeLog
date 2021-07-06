@@ -3,6 +3,9 @@
 
 version 3.008:
 
+	Improvements
+	- github merge#1 fix example [Randolf Richardson]
+
 version 3.007: Thu 13 Jun 16:54:08 CEST 2019
 
 	Fixes:
