@@ -173,8 +173,7 @@ sub init($)
 
     my $access    = $args->{access} ||= 'r';
     my $writeable = $access =~ m/w|a/;
-    my $ch        = $self->{MBI_c_head}
-      = $args->{cache_head} || ($writeable ? 'NO' : 'DELAY');
+    my $ch        = $self->{MBI_c_head} = $args->{cache_head} || ($writeable ? 'NO' : 'DELAY');
 
     $args->{head_type}    ||= 'Mail::Box::IMAP4::Head'
         if $ch eq 'NO' || $ch eq 'PARTIAL';
@@ -182,13 +181,17 @@ sub init($)
     $args->{body_type}    ||= 'Mail::Message::Body::Lines';
 	$args->{message_type} ||= 'Mail::Box::IMAP4::Message';
 
+    if(my $client = $args->{imap_client}) {
+       $args->{server_name} = $client->PeerAddr;
+       $args->{server_port} = $client->PeerPort;
+       $args->{username}    = $client->User;
+    }
+
     $self->SUPER::init($args);
 
     $self->{MBI_domain}   = $args->{domain};
-    $self->{MBI_c_labels}
-      = $args->{cache_labels} || ($writeable ? 'NO' : 'DELAY');
-    $self->{MBI_c_body}
-      = $args->{cache_body}   || ($writeable ? 'NO' : 'DELAY');
+    $self->{MBI_c_labels} = $args->{cache_labels} || ($writeable ? 'NO' : 'DELAY');
+    $self->{MBI_c_body}   = $args->{cache_body}   || ($writeable ? 'NO' : 'DELAY');
 
 
     my $transport = $args->{transporter} || 'Mail::Transport::IMAP4';

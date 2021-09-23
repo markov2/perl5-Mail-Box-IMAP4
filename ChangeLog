@@ -3,6 +3,10 @@
 
 version 3.008:
 
+	Fixes:
+	- do not confuse multiple connections with own imap_client object
+	  rt.cpan.org#1036931 [Jonathan Kamens]
+
 	Improvements
 	- github merge#1 fix example [Randolf Richardson]
 
