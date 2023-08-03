@@ -6,7 +6,7 @@
 use strict;
 use warnings;
 
-use Mail::Box::Test;
+use File::Temp 0.19 ();
 use Mail::Box::MH;
 use Mail::Box::Identity;
 use Mail::Server::IMAP4::List;
@@ -32,9 +32,7 @@ my @boxes =
 
 # Create the directory hierarchy
 
-my $top = '60imap-test';
-clean_dir($top);
-mkdir $top or die "$top: $!";
+my $top = File::Temp->newdir();
 
 foreach my $box (@boxes)
 {   my $dir = "$top/$box";
@@ -271,4 +269,3 @@ is(str($imap->list('/usr/staff/jones', '')), <<'__DELIM');
 (\Noselect) "/" /
 __DELIM
 
-clean_dir($top);
