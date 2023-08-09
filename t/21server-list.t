@@ -6,7 +6,7 @@
 use strict;
 use warnings;
 
-use File::Temp 0.19 ();
+use File::Temp ();
 use Mail::Box::MH;
 use Mail::Box::Identity;
 use Mail::Server::IMAP4::List;
@@ -31,8 +31,7 @@ my @boxes =
    );
 
 # Create the directory hierarchy
-
-my $top = File::Temp->newdir();
+my $top = File::Temp->newdir;
 
 foreach my $box (@boxes)
 {   my $dir = "$top/$box";
