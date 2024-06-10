@@ -182,8 +182,8 @@ sub init($)
 	$args->{message_type} ||= 'Mail::Box::IMAP4::Message';
 
     if(my $client = $args->{imap_client}) {
-       $args->{server_name} = $client->PeerAddr;
-       $args->{server_port} = $client->PeerPort;
+       $args->{server_name} = $client->Socket->peerhost();
+       $args->{server_port} = $client->Socket->peerport();
        $args->{username}    = $client->User;
     }
 
