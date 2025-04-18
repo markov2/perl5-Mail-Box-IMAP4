@@ -7,6 +7,9 @@ version 3.009:
 	- Get peer host and port from Socket object, not IMAPClient.
 	  github pull#3 [Jonathan Kamens]
 
+	Improvements:
+	- add .gitignore
+
 version 3.008: Wed  9 Aug 10:03:40 CEST 2023
 
 	Fixes:
