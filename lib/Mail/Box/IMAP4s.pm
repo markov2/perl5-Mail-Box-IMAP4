@@ -35,6 +35,7 @@ See M<Mail::Box::IMAP4>.
 =c_method new %options
 =default server_port  993
 
+=option starttls BOOLEAN
 =default starttls C<false>
 
 =option  ssl HASH|ARRAY
