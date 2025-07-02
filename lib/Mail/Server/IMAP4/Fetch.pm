@@ -281,12 +281,11 @@ Only a limited set of the information is displayed.
 
 sub printStructure(;$$)
 {   my $self    = shift;
-
     my $fh      = @_ ? shift : select;
     my $number  = @_ ? shift : '';
 
     my $buffer;   # only filled if filehandle==undef
-    open $fh, '>:raw', \$buffer unless defined $fh;
+    defined $fh or open $fh, '>:raw', \$buffer;
 
     my $type    = $self->{type};
     my $subject = $self->{subject} || '';
@@ -301,7 +300,7 @@ sub printStructure(;$$)
     $text      .= ' ' x (length($number) + 1);
     $text      .= "@ $hbegin-$bbegin-$bodyend, $size bytes, $lines lines\n";
 
-    ref $fh eq 'GLOB' ? (print $fh $text) : $fh->print($text);
+    $fh->print($text);
 
     if($self->{nest})
     {   $self->{nest}->printStructure($fh, length($number) ? $number.'.1' :'1');

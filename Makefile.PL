@@ -1,6 +1,6 @@
 use ExtUtils::MakeMaker;
 
-require 5.010;
+require 5.014;
 
 use IO::Handle;
 

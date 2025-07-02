@@ -3,6 +3,12 @@
 
 version 3.010:
 
+	Changes:
+	- require Perl 5.014
+
+	Improvements:
+	- remove explicit use of GLOB.
+
 version 3.009: Fri Apr 18 08:41:26 PM CEST 2025
 
 	Fixes:
