@@ -26,7 +26,6 @@ This class adds IMAP protocol features to the normal M<Mail::Box::Manager>.
 
 =option  index_filename FILENAME
 =default index_filename C<$folderdir/index>
-
 =cut
 
 sub init($)
@@ -35,14 +34,12 @@ sub init($)
     $self->SUPER::init($args) or return ();
 
     my $fn = $args->{indexfile};
-    $self->{MSNU_indexfile}
-        = defined $fn ? $fn : ($self->folderdir . '/index');
+    $self->{MSNU_indexfile} = defined $fn ? $fn : ($self->folderdir . '/index');
 
     $self;
 }
 
 #-------------------------------------------
-
 =section Attributes
 
 =method indexFilename
@@ -52,7 +49,6 @@ Returns the filename of the index file.
 sub indexFilename() { shift->{MSNU_indexfile} };
 
 #-------------------------------------------
-
 =section Manage folders
 
 =method folderInfo $name
@@ -76,8 +72,6 @@ sub folderInfo($)
     $index->folder(shift);
 }
 
-#-------------------------------------------
-
 =method delete $name, %options
 Remove all signs from the folder on the file-system.  Messages still in
 the folder will be removed.
@@ -92,7 +86,6 @@ types, will be ignored here: the user's index contains the required details.
  print "no xyz (anymore)\n" if $user->delete('xyz');
 
 =error Unable to remove folder $dir
-
 =cut
 
 sub delete($)
@@ -133,8 +126,6 @@ sub _delete($$)
     1;
 }
 
-#-------------------------------------------
-
 =method create $name, %options
 Creates a new folder with the specified name.  Folder info is returned,
 which will be very simple.  In the accidental case that the folder already
@@ -144,7 +135,6 @@ exists, a warning will be issued, and that folder's data returned.
 =error   Cannot create folder directory $dir: $!
 =error   Cannot write name for folder in $file: $!
 =error   Failed writing folder name to $file: $!
-
 =cut
 
 sub create($@)
@@ -173,14 +163,14 @@ sub create($@)
 
     # Write folder name in directory, for recovery purposes.
     my $namefile = "$dir/name";
-    unless(open NAME, '>:encoding(utf-8)', $namefile)
+    unless(open my $namefh, '>:encoding(utf-8)', $namefile)
     {   $self->log(ERROR => "Cannot write name for folder in $namefile: $!");
         return undef;
     }
 
-    print NAME "$name\n";
+    $namefh->print("$name\n");
 
-    unless(close NAME)
+    unless($namefh->close)
     {   $self->log(ERROR => "Failed writing folder name to $namefile: $!");
         return undef;
     }
@@ -199,7 +189,6 @@ sub create($@)
 }
 
 #-------------------------------------------
-
 =chapter DETAILS
 
 =section The folder table

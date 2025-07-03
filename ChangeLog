@@ -8,6 +8,7 @@ version 3.010:
 
 	Improvements:
 	- remove explicit use of GLOB.
+	- remove use of bareword filehandle.
 
 version 3.009: Fri Apr 18 08:41:26 PM CEST 2025
 

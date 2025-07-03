@@ -2,8 +2,6 @@ use ExtUtils::MakeMaker;
 
 require 5.016;
 
-use IO::Handle;
-
 my $VERSION = '3.010';
 
 my %prereq =
@@ -44,12 +42,10 @@ foreach my $module (sort keys %prereq)
         push @errors, $module;
     }
     elsif($module->VERSION < $reqversion)
-    {   print "    $module version ",$module->VERSION
-            , " is outdated; requires $reqversion\n";
+    {   print "    $module version ", $module->VERSION, " is outdated; requires $reqversion\n";
     }
     else
-    {   print "    $module version ",$module->VERSION
-            , " is ok (required is $reqversion)\n";
+    {   print "    $module version ", $module->VERSION, " is ok (required is $reqversion)\n";
     }
 }
 
