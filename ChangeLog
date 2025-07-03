@@ -4,7 +4,7 @@
 version 3.010:
 
 	Changes:
-	- require Perl 5.014
+	- MailBox mid-life upgrade: require Perl minimal version 5.016
 
 	Improvements:
 	- remove explicit use of GLOB.
