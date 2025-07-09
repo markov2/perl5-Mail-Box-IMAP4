@@ -294,8 +294,8 @@ sub printStructure(;$$)
     my $hbegin  = $self->{headbegin} || 0;
     my $bbegin  = $self->{bodybegin} || '?';
     my $bodyend = $self->{bodyend}   || '?';
-    my $size    = defined $self->{bodysize}  ? $self->{bodysize}  : '?';
-    my $lines   = defined $self->{bodylines} ? $self->{bodylines} : '?';
+    my $size    = $self->{bodysize}  // '?';
+    my $lines   = $self->{bodylines} // '?';
 
     $text      .= ' ' x (length($number) + 1);
     $text      .= "@ $hbegin-$bbegin-$bodyend, $size bytes, $lines lines\n";

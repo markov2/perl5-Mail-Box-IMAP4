@@ -163,7 +163,8 @@ sub create($@)
 
     # Write folder name in directory, for recovery purposes.
     my $namefile = "$dir/name";
-    unless(open my $namefh, '>:encoding(utf-8)', $namefile)
+    my $namefh;
+    unless(open $namefh, '>:encoding(utf-8)', $namefile)
     {   $self->log(ERROR => "Cannot write name for folder in $namefile: $!");
         return undef;
     }
