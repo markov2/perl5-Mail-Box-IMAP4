@@ -1,26 +1,29 @@
-# This code is part of distribution Mail-Box-IMAP4.  Meta-POD processed with
-# OODoc into POD and HTML manual-pages.  See README.md
-# Copyright Mark Overmeer.  Licensed under the same terms as Perl itself.
+#oodist: *** DO NOT USE THIS VERSION FOR PRODUCTION ***
+#oodist: This file contains OODoc-style documentation which will get stripped
+#oodist: during its release in the distribution.  You can use this file for
+#oodist: testing, however the code of this development version may be broken!
+#oorestyle: not found P for c_method new($user-)
 
 package Mail::Server::IMAP4::List;
 
 use strict;
 use warnings;
 
+#--------------------
 =chapter NAME
 
 Mail::Server::IMAP4::List - folder related IMAP4 answers
 
 =chapter SYNOPSIS
 
- my $imap = Mail::Server::IMAP4::List->new
-   ( folders   => $folders   # M<Mail::Box::Identity>
-   , inbox     => $inbox     # M<Mail::Box>
-   , delimiter => '#'
-   );
+  my $imap = Mail::Server::IMAP4::List->new(
+    folders   => $folders,   # Mail::Box::Identity
+    inbox     => $inbox,     # Mail::Box
+    delimiter => '#'
+    );
 
- my $imap = Mail::Server::IMAP4::List->new(user => $user);
- print $imap->list(...);        # for LIST command
+  my $imap = Mail::Server::IMAP4::List->new(user => $user);
+  print $imap->list(...);        # for LIST command
 
 =chapter DESCRIPTION
 
@@ -32,7 +35,7 @@ Mail::Server::IMAP4::List - folder related IMAP4 answers
 
 Create a (temporary) object to handle the LIST requests for
 a certain user, based upon a set of folders.  The data is kept by
-M<Mail::Box::Identity> and M<Mail::Box::Collection> objects, which
+Mail::Box::Identity and Mail::Box::Collection objects, which
 mean that the folders will not be opened to answer these questions.
 
 =option  delimiter STRING|CODE
@@ -45,34 +48,33 @@ See M<delimiter()> for an example.
 =option  folders  OBJECT
 =default folders  <from user>
 You need to specify either a set of folders explicitly or via the
-user. Some M<Mail::Box::Identity> OBJECT is needed.
+user. Some Mail::Box::Identity OBJECT is needed.
 
 =option  inbox    BOOLEAN
 =default inbox    <from user>
 For now, only used to see whether there is an inbox, so a truth value will
 do.  This may change in the future.  By default, the flag is set if
-C<$user->inbox> is defined.
+$user inbox is defined.
 
 =option  user     OBJECT
-=default user     <undef>
-A M<Mail::Box::Manage::User> OBJECT, representing the user who's folders
+=default user     undef
+A Mail::Box::Manage::User OBJECT, representing the user who's folders
 must get reported.
 =cut
 
 sub new($)
-{   my ($class, %args) = @_;
+{	my ($class, %args) = @_;
 
-    my $self = bless {}, $class;
+	my $self = bless {}, $class;
 
-    my $user = $self->{MSIL_user}  = $args{user};
-    $self->{MSIL_folders} = $args{folders};
-    $self->{MSIL_inbox}   = $args{inbox};
-    $self->{MSIL_delim}   = exists $args{delimiter} ? $args{delimiter} : '/';
-    $self;
+	my $user = $self->{MSIL_user} = $args{user};
+	$self->{MSIL_folders} = $args{folders};
+	$self->{MSIL_inbox}   = $args{inbox};
+	$self->{MSIL_delim}   = exists $args{delimiter} ? $args{delimiter} : '/';
+	$self;
 }
 
-#------------------------------------------
-
+#--------------------
 =section Attributes
 
 =method delimiter [$foldername]
@@ -80,60 +82,53 @@ Returns the delimiter string.  The foldername is only required when a
 CODE reference was specified at initiation.
 
 =example setting-up an IMAP4 delimiter
- sub delim($)
- {   my $path = shift;
-     my ($delim, $root)
-       = $path =~ m/^(#news\.)/ ? ('.', $1)
-       = $path =~ m!^/!         ? ('/', '/')
-       :                          ('/', '');
+  sub delim($)
+  {   my $path = shift;
+      my ($delim, $root)
+        = $path =~ m/^(#news\.)/ ? ('.', $1)
+        : $path =~ m!^/!         ? ('/', '/')
+        :                          ('/', '');
 
-     wantarray ? ($delim, $root) : $delim;
- }
+      wantarray ? ($delim, $root) : $delim;
+  }
 
- my $list = Mail::Server::IMAP4::List->new(delimiter => \&delim, ...);
- print $list->delimiter('abc/xyz');      # returns a / (slash) and ''
- print $list->delimiter('#news.feed');   # returns a . (dot)   and $news.
- print $list->delimiter('');             # returns default delimiter
- 
+  my $list = Mail::Server::IMAP4::List->new(delimiter => \&delim, ...);
+  print $list->delimiter('abc/xyz');      # returns a / (slash) and ''
+  print $list->delimiter('#news.feed');   # returns a . (dot)   and $news.
+  print $list->delimiter('');             # returns default delimiter
+
 =cut
 
 sub delimiter(;$)
-{   my $delim = shift->{MSIL_delim};
-    ref $delim ? $delim->(shift) : $delim;
+{	my $delim = shift->{MSIL_delim};
+	ref $delim ? $delim->(shift) : $delim;
 }
 
-#------------------------------------------
-
 =method user
-Returns the M<Mail::Box::Manage::User> object, if defined.
+Returns the Mail::Box::Manage::User object, if defined.
 =cut
 
-sub user() { shift->{MSIL_user} }
-
-#------------------------------------------
+sub user() { $_[0]->{MSIL_user} }
 
 =method folders
-Returns the M<Mail::Box::Identity> of the toplevel folder.
+Returns the Mail::Box::Identity of the toplevel folder.
 =cut
 
 sub folders()
-{   my $self = shift;
-    $self->{MSIL_folders} || $self->user->topfolder;
+{	my $self = shift;
+	$self->{MSIL_folders} || $self->user->topfolder;
 }
 
-#------------------------------------------
-
 =method inbox
-Returns the M<Mail::Box> or filename of the INBOX.
+Returns the Mail::Box or filename of the INBOX.
 =cut
 
 sub inbox()
-{   my $self = shift;
-    $self->{MSIL_inbox} || $self->user->inbox;
+{	my $self = shift;
+	$self->{MSIL_inbox} || $self->user->inbox;
 }
 
-#------------------------------------------
-
+#--------------------
 =section IMAP Commands
 
 =method list $base, $pattern
@@ -141,83 +136,82 @@ IMAP's LIST command.  The request must be partially decoded, the answer
 will need to be encoded.
 
 =examples using IMAP list
- my $imap  = Mail::Server::IMAP4::List->new(delimiter => \&delim, ...);
- local $"  = ';';
+  my $imap  = Mail::Server::IMAP4::List->new(delimiter => \&delim, ...);
+  local $"  = ';';
 
- my @lines = $imap->list('', '');  # returns the default delimiter
- print ">@{$lines[0]}<";           #  >(\Noselect);/;<
+  my @lines = $imap->list('', '');  # returns the default delimiter
+  print ">@{$lines[0]}<";           #  >(\Noselect);/;<
 
- my @lines = $imap->list('#news',''); # specific delimiter
- print ">@{$lines[0]}<";           #  >(\Noselect);.;<
+  my @lines = $imap->list('#news',''); # specific delimiter
+  print ">@{$lines[0]}<";           #  >(\Noselect);.;<
 
- my @lines = $imap->list('top/x/', '%');
- print ">@$_<," foreach @lines;    #  >();/;/tmp/x/y<,>(\Marked);/;/tmp/x/z<
+  my @lines = $imap->list('top/x/', '%');
+  print ">@$_<," foreach @lines;    #  >();/;/tmp/x/y<,>(\Marked);/;/tmp/x/z<
 
 =cut
 
 sub list($$)
-{   my ($self, $base, $pattern) = @_;
-    
-    return [ '(\Noselect)', $self->delimiter($base), '' ]
-       if $pattern eq '';
+{	my ($self, $base, $pattern) = @_;
 
-    my $delim  = $self->delimiter($base);
-    my @path   = split $delim, $base;
-    my $folder = $self->folders;
+	return [ '(\Noselect)', $self->delimiter($base), '' ]
+		if $pattern eq '';
 
-    while(@path && defined $folder)
-    {   $folder = $folder->folder(shift @path);
-    }
-    defined $folder or return ();
+	my $delim  = $self->delimiter($base);
+	my @path   = split $delim, $base;
+	my $folder = $self->folders;
 
-    my @pattern = split $delim, $pattern;
-    return $self->_list($folder, $delim, @pattern);
+	while(@path && defined $folder)
+	{	$folder = $folder->folder(shift @path);
+	}
+	defined $folder or return ();
+
+	my @pattern = split $delim, $pattern;
+	return $self->_list($folder, $delim, @pattern);
 }
 
 sub _list($$@)
-{   my ($self, $folder, $delim) = (shift, shift, shift);
+{	my ($self, $folder, $delim) = (shift, shift, shift);
 
-    if(!@_)
-    {   my @flags;
-        push @flags, '\Noselect'
-           if $folder->onlySubfolders || $folder->deleted;
+	if(!@_)
+	{	my @flags;
+		push @flags, '\Noselect'
+			if $folder->onlySubfolders || $folder->deleted;
 
-        push @flags, '\Noinferiors' unless $folder->inferiors;
-        my $marked = $folder->marked;
-        push @flags, ($marked ? '\Marked' : '\Unmarked')
-            if defined $marked;
+		push @flags, '\Noinferiors' unless $folder->inferiors;
+		my $marked = $folder->marked;
+		push @flags, ($marked ? '\Marked' : '\Unmarked')
+			if defined $marked;
 
-        local $" = ' ';
+		local $" = ' ';
 
-        # This is not always correct... should compose the name from the
-        # parts... but in nearly all cases, the following is sufficient.
-        my $name = $folder->fullname;
-        for($name)
-        {    s/^=//;
-             s![/\\]!$delim!g;
-        }
-        return [ "(@flags)", $delim, $name ];
-    }
+		# This is not always correct... should compose the name from the
+		# parts... but in nearly all cases, the following is sufficient.
+		my $name = $folder->fullname;
+		for($name)
+		{	s/^=//;
+			s![/\\]!$delim!g;
+		}
+		return [ "(@flags)", $delim, $name ];
+	}
 
-    my $pat = shift;
-    if($pat eq '%')
-    {   my $subs = $folder->subfolders
-             or return $self->_list($folder, $delim);
-        return map { $self->_list($_, $delim, @_) } $subs->sorted;
-    }
+	my $pat = shift;
+	if($pat eq '%')
+	{	my $subs = $folder->subfolders
+			or return $self->_list($folder, $delim);
+		return map $self->_list($_, $delim, @_), $subs->sorted;
+	}
 
-    if($pat eq '*')
-    {   my @own = $self->_list($folder, $delim, @_);
-        my $subs = $folder->subfolders or return @own;
-        return @own, map { $self->_list($_, $delim, '*', @_) } $subs->sorted;
-    }
+	if($pat eq '*')
+	{	my @own = $self->_list($folder, $delim, @_);
+		my $subs = $folder->subfolders or return @own;
+		return @own, map $self->_list($_, $delim, '*', @_), $subs->sorted;
+	}
 
-    $folder = $folder->find(subfolders => $pat) or return ();
-    $self->_list($folder, $delim, @_);
+	$folder = $folder->find(subfolders => $pat) or return ();
+	$self->_list($folder, $delim, @_);
 }
 
-#------------------------------------------
-
+#--------------------
 =chapter DETAILS
 
 See

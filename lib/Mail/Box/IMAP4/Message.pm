@@ -1,6 +1,7 @@
-# This code is part of distribution Mail-Box-IMAP4.  Meta-POD processed with
-# OODoc into POD and HTML manual-pages.  See README.md
-# Copyright Mark Overmeer.  Licensed under the same terms as Perl itself.
+#oodist: *** DO NOT USE THIS VERSION FOR PRODUCTION ***
+#oodist: This file contains OODoc-style documentation which will get stripped
+#oodist: during its release in the distribution.  You can use this file for
+#oodist: testing, however the code of this development version may be broken!
 
 package Mail::Box::IMAP4::Message;
 use base 'Mail::Box::Net::Message';
@@ -10,19 +11,20 @@ use warnings;
 
 use Date::Parse 'str2time';
 
+#--------------------
 =chapter NAME
 
 Mail::Box::IMAP4::Message - one message on a IMAP4 server
 
 =chapter SYNOPSIS
 
- my $folder = new Mail::Box::IMAP4 ...
- my $message = $folder->message(10);
+  my $folder = new Mail::Box::IMAP4 ...
+  my $message = $folder->message(10);
 
 =chapter DESCRIPTION
 
 A C<Mail::Box::IMAP4::Message> represents one message on a IMAP4 server,
-maintained by a M<Mail::Box::IMAP4> folder. Each message is stored as
+maintained by a Mail::Box::IMAP4 folder. Each message is stored as
 separate entity on the server, and maybe temporarily in your program
 as well.
 
@@ -30,7 +32,7 @@ as well.
 
 =c_method new %options
 
-=default body_type M<Mail::Message::Body::Lines>
+=default body_type Mail::Message::Body::Lines
 
 =option  write_labels BOOLEAN
 =default write_labels <true>
@@ -43,7 +45,7 @@ changes in the same folder, and will get the updates too late or never...
 =option  cache_labels BOOLEAN
 =default cache_labels <false>
 All standard IMAP labels can be cached on the local server to improve
-speed.  This has the same dangers as setting C<write_labels> to false.
+speed.  This has the same dangers as setting P<write_labels> to false.
 The caching starts when the first label of the message was read.
 
 =option  cache_head BOOLEAN
@@ -55,18 +57,14 @@ The caching starts when the first label of the message was read.
 =cut
 
 sub init($)
-{   my ($self, $args) = @_;
+{	my ($self, $args) = @_;
+	$self->SUPER::init($args);
 
-    $self->SUPER::init($args);
-
-    $self->{MBIM_write_labels}
-       = exists $args->{write_labels} ? $args->{write_labels} : 1;
-
-    $self->{MBIM_cache_labels} = $args->{cache_labels};
-    $self->{MBIM_cache_head}   = $args->{cache_head};
-    $self->{MBIM_cache_body}   = $args->{cache_body};
-
-    $self;
+	$self->{MBIM_write_labels} = exists $args->{write_labels} ? $args->{write_labels} : 1;
+	$self->{MBIM_cache_labels} = $args->{cache_labels};
+	$self->{MBIM_cache_head}   = $args->{cache_head};
+	$self->{MBIM_cache_body}   = $args->{cache_body};
+	$self;
 }
 
 =method size
@@ -77,17 +75,13 @@ sizes can differ because the difference in line-ending representation.
 =cut
 
 sub size($)
-{   my $self = shift;
-    
-    return $self->SUPER::size
-        unless $self->isDelayed;
-
-    $self->fetch('RFC822.SIZE');
+{	my $self = shift;
+	$self->isDelayed ? $self->fetch('RFC822.SIZE') : $self->SUPER::size;
 }
 
 sub recvstamp()
-{   my $date = shift->fetch('INTERNALDATE');
-    defined $date ? str2time($date) : undef;
+{	my $date = shift->fetch('INTERNALDATE');
+	defined $date ? str2time($date) : undef;
 }
 
 =method label $label|PAIRS
@@ -98,53 +92,53 @@ to be set.
 The IMAP protocol defines its own names for the labels, which must
 be set immediately to inform other IMAP clients which may have the
 same folder open. But that can be changed with M<new(write_labels)>.
-Some labels are translated to the corresponding IMAP system labels. 
+Some labels are translated to the corresponding IMAP system labels.
 
 =cut
 
 sub label(@)
-{   my $self = shift;
-    my $imap = $self->folder->transporter or return;
-    my $id   = $self->unique or return;
+{	my $self = shift;
+	my $imap = $self->folder->transporter or return;
+	my $id   = $self->unique or return;
 
-    if(@_ == 1)
-    {   # get one value only
-        my $label  = shift;
-        my $labels = $self->{MM_labels};
-        return $labels->{$label}
-            if exists $labels->{$label} || exists $labels->{seen};
+	if(@_ == 1)
+	{	# get one value only
+		my $label  = shift;
+		my $labels = $self->{MM_labels};
+		return $labels->{$label}
+			if exists $labels->{$label} || exists $labels->{seen};
 
-        my $flags = $imap->getFlags($id);
-        if($self->{MBIM_cache_labels})
-        {   # the program may have added own labels
-            @{$labels}{keys %$flags} = values %$flags;
-            delete $self->{MBIM_labels_changed};
-        }
-        return $flags->{$label};
-    }
+		my $flags = $imap->getFlags($id);
+		if($self->{MBIM_cache_labels})
+		{	# the program may have added own labels
+			@{$labels}{keys %$flags} = values %$flags;
+			delete $self->{MBIM_labels_changed};
+		}
+		return $flags->{$label};
+	}
 
-    my @private;
-    if($self->{MBIM_write_labels})
-    {    @private = $imap->setFlags($id, @_);
-         delete $self->{MBIM_labels_changed};
-    }
-    else
-    {    @private = @_;
-    }
+	my @private;
+	if($self->{MBIM_write_labels})
+	{	@private = $imap->setFlags($id, @_);
+		delete $self->{MBIM_labels_changed};
+	}
+	else
+	{	@private = @_;
+	}
 
-    my $labels  = $self->{MM_labels};
-    my @keep    = $self->{MBIM_cache_labels} ? @_ : @private;
+	my $labels  = $self->{MM_labels};
+	my @keep    = $self->{MBIM_cache_labels} ? @_ : @private;
 
-    while(@keep)
-    {   my ($k, $v) = (shift @keep, shift @keep);
-        next if defined $labels->{$k} && $labels->{$k} eq $v;
+	while(@keep)
+	{	my ($k, $v) = (shift @keep, shift @keep);
+		next if defined $labels->{$k} && $labels->{$k} eq $v;
 
-        $self->{MBIM_labels_changed}++;
-        $labels->{$k} = $v;
-    }
-    $self->modified(1) if @private && $self->{MBIM_labels_changed};
- 
-    $self;
+		$self->{MBIM_labels_changed}++;
+		$labels->{$k} = $v;
+	}
+
+	$self->modified(1) if @private && $self->{MBIM_labels_changed};
+	$self;
 }
 
 =method labels
@@ -155,48 +149,47 @@ to the remote server.  See M<labels()> to set values.
 =cut
 
 sub labels()
-{   my $self   = shift;
-    my $id     = $self->unique;
-    my $labels = $self->SUPER::labels;
-    $labels    = { %$labels } unless $self->{MBIM_cache_labels};
+{	my $self   = shift;
+	my $id     = $self->unique;
+	my $labels = $self->SUPER::labels;
+	$labels    = { %$labels } unless $self->{MBIM_cache_labels};
 
-    if($id && !exists $labels->{seen})
-    {   my $imap = $self->folder->transporter or return;
-        my $flags = $imap->getFlags($id);
-        @{$labels}{keys %$flags} = values %$flags;
-    }
+	if($id && !exists $labels->{seen})
+	{	my $imap = $self->folder->transporter or return;
+		my $flags = $imap->getFlags($id);
+		@{$labels}{keys %$flags} = values %$flags;
+	}
 
-    $labels;
+	$labels;
 }
 
-#-------------------------------------------
-
+#--------------------
 =section Internals
 
 =cut
 
 sub loadHead()
-{   my $self     = shift;
-    my $head     = $self->head;
-    return $head unless $head->isDelayed;
+{	my $self     = shift;
+	my $head     = $self->head;
+	$head->isDelayed or return $head;
 
-    $head         = $self->folder->getHead($self);
-    $self->head($head) if $self->{MBIM_cache_head};
-    $head;
+	$head         = $self->folder->getHead($self);
+	$self->head($head) if $self->{MBIM_cache_head};
+	$head;
 }
 
 sub loadBody()
-{   my $self     = shift;
+{	my $self     = shift;
 
-    my $body     = $self->body;
-    return $body unless $body->isDelayed;
+	my $body     = $self->body;
+	$body->isDelayed or return $body;
 
-    (my $head, $body) = $self->folder->getHeadAndBody($self);
-    return undef unless defined $head;
+	(my $head, $body) = $self->folder->getHeadAndBody($self);
+	defined $head or return undef;
 
-    $self->head($head)      if $self->{MBIM_cache_head} && $head->isDelayed;
-    $self->storeBody($body) if $self->{MBIM_cache_body};
-    $body;
+	$self->head($head)      if $self->{MBIM_cache_head} && $head->isDelayed;
+	$self->storeBody($body) if $self->{MBIM_cache_body};
+	$body;
 }
 
 =method fetch [$info, ...]
@@ -206,11 +199,11 @@ Without $info, C<ALL> information is retrieved and returned as a HASH.
 =cut
 
 sub fetch(@)
-{   my ($self, @info) = @_;
-    my $folder = $self->folder;
-    my $answer = ($folder->fetch( [$self], @info))[0];
+{	my ($self, @info) = @_;
+	my $folder = $self->folder;
+	my $answer = ($folder->fetch( [$self], @info))[0];
 
-    @info==1 ? $answer->{$info[0]} : @{$answer}{@info};
+	@info==1 ? $answer->{$info[0]} : @{$answer}{@info};
 }
 
 =method writeDelayed $imap
@@ -219,7 +212,7 @@ is done under force, so should even be done for folders opened without
 write-access. This method is called indirectly by a M<Mail::Box::write()>
 or M<Mail::Box::close()>.
 
-The $imap argument is a M<Mail::IMAPClient> which has the right folder
+The $imap argument is a Mail::IMAPClient which has the right folder
 already selected.
 
 Writing changes to the remote folder is not without hassle: IMAP4
@@ -231,29 +224,27 @@ for deletion.
 =cut
 
 sub writeDelayed($$)
-{   my ($self, $foldername, $imap) = @_;
+{	my ($self, $foldername, $imap) = @_;
 
-    my $id     = $self->unique;
-    my $labels = $self->labels;
+	my $id     = $self->unique;
+	my $labels = $self->labels;
 
-    if($self->head->modified || $self->body->modified || !$id)
-    {
-        $imap->appendMessage($self, $foldername);
-        if($id)
-        {   $self->delete;
-            $self->unique(undef);
-        }
-    }
-    elsif($self->{MBIM_labels_changed})
-    {   $imap->setFlags($id, %$labels);  # non-IMAP4 labels disappear
-        delete $self->{MBIM_labels_changed};
-    }
+	if($self->head->modified || $self->body->modified || !$id)
+	{	$imap->appendMessage($self, $foldername);
+		if($id)
+		{	$self->delete;
+			$self->unique(undef);
+		}
+	}
+	elsif($self->{MBIM_labels_changed})
+	{	$imap->setFlags($id, %$labels);  # non-IMAP4 labels disappear
+		delete $self->{MBIM_labels_changed};
+	}
 
-    $self;
+	$self;
 }
 
-#-------------------------------------------
-
+#--------------------
 =chapter DETAILS
 
 =section Labels
@@ -269,21 +260,21 @@ The label names as defined by the IMAP protocol are standardized into
 the MailBox standard to hide folder differences.  The following translations
 are always performed:
 
- \Seen     => seen
- \Answered => replied
- \Flagged  => flagged
- \Deleted  => deleted
- \Draft    => draft
- \Recent   => NOT old
+  \Seen     => seen
+  \Answered => replied
+  \Flagged  => flagged
+  \Deleted  => deleted
+  \Draft    => draft
+  \Recent   => NOT old
 
 =examples of label translations
 
- $imap->message(3)->label(replied => 1, draft => 0);
+  $imap->message(3)->label(replied => 1, draft => 0);
 
 will result in a IMAP protocol statements like
 
- A003 STORE 4 +FLAGS (\Answered)
- A003 STORE 4 -FLAGS (\Draft)
+  A003 STORE 4 +FLAGS (\Answered)
+  A003 STORE 4 -FLAGS (\Draft)
 
 =subsection Other labels
 

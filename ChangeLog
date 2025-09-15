@@ -10,6 +10,7 @@ version 3.010:
 	- remove explicit use of GLOB.
 	- remove use of bareword filehandle.
 	- use defined-or
+	- oorestyle and convert to OODoc 3.04
 
 version 3.009: Fri Apr 18 08:41:26 PM CEST 2025
 

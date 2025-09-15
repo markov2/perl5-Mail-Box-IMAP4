@@ -1,6 +1,7 @@
-# This code is part of distribution Mail-Box-IMAP4.  Meta-POD processed with
-# OODoc into POD and HTML manual-pages.  See README.md
-# Copyright Mark Overmeer.  Licensed under the same terms as Perl itself.
+#oodist: *** DO NOT USE THIS VERSION FOR PRODUCTION ***
+#oodist: This file contains OODoc-style documentation which will get stripped
+#oodist: during its release in the distribution.  You can use this file for
+#oodist: testing, however the code of this development version may be broken!
 
 package Mail::Box::IMAP4::Head;
 use base 'Mail::Message::Head';
@@ -10,6 +11,7 @@ use strict;
 
 use Date::Parse;
 
+#--------------------
 =chapter NAME
 
 Mail::Box::IMAP4::Head - header fields related IMAP interface
@@ -33,19 +35,19 @@ games with headers.  On the other hand: the other settings are not
 =c_method new %options
 
 =option  cache_fields BOOLEAN
-=default cache_fields C<false>
+=default cache_fields false
 This is only a read-cache on fields, because this kind of header does
 not allow writing of fields.  See M<Mail::Box::IMAP4::new(cache_head)>,
-this value is set to C<false> for C<NO> and C<true> for C<PARTIAL>..
+this value is set to false for C<NO> and true for C<PARTIAL>..
 
 =cut
 
 sub init($$)
-{   my ($self, $args) = @_;
-    $self->SUPER::init($args);
+{	my ($self, $args) = @_;
+	$self->SUPER::init($args);
 
-    $self->{MBIH_c_fields} = $args->{cache_fields};
-    $self;
+	$self->{MBIH_c_fields} = $args->{cache_fields};
+	$self;
 }
 
 =method get $name, [$index]
@@ -54,38 +56,37 @@ take place.
 =cut
 
 sub get($;$)
-{   my ($self, $name, $index) = @_;
+{	my ($self, $name, $index) = @_;
 
-       if(not $self->{MBIH_c_fields}) { ; }
-    elsif(wantarray)
-    {   my @values = $self->SUPER::get(@_);
-        return @values if @values;
-    }
-    else
-    {   my $value  = $self->SUPER::get(@_);
-        return $value  if defined $value;
-    }
+	   if(not $self->{MBIH_c_fields}) { ; }
+	elsif(wantarray)
+	{	my @values = $self->SUPER::get(@_);
+		return @values if @values;
+	}
+	else
+	{	my $value  = $self->SUPER::get(@_);
+		return $value  if defined $value;
+	}
 
-    # Something here, playing with ENVELOPE, may improve the performance
-    # as well.
-    my $imap   = $self->message->folder->transporter;
-    my $uidl   = $self->message->unique;
-    my @fields = $imap->getFields($uidl, $name);
+	# Something here, playing with ENVELOPE, may improve the performance
+	# as well.
+	my $imap   = $self->message->folder->transporter;
+	my $uidl   = $self->message->unique;
+	my @fields = $imap->getFields($uidl, $name);
 
-    if(@fields && $self->{MBIH_c_fields})
-    {   $self->addNoRealize($_) for @fields
-    }
+	if(@fields && $self->{MBIH_c_fields})
+	{	$self->addNoRealize($_) for @fields
+	}
 
-      defined $index ? $fields[$index]
-    : wantarray      ? @fields
-    :                  $fields[0];
+	  defined $index ? $fields[$index]
+	: wantarray      ? @fields
+	:                  $fields[0];
 }
 
-sub guessBodySize() {undef}
-
+sub guessBodySize()  {undef}
 sub guessTimestamp() {undef}
 
-#------------------------------------------
+#--------------------
 =section Internals
 
 =cut
