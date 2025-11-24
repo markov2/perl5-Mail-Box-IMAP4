@@ -2,7 +2,6 @@
 #oodist: This file contains OODoc-style documentation which will get stripped
 #oodist: during its release in the distribution.  You can use this file for
 #oodist: testing, however the code of this development version may be broken!
-#oorestyle: not found P for c_method new($user-)
 
 package Mail::Server::IMAP4::List;
 
@@ -20,7 +19,7 @@ Mail::Server::IMAP4::List - folder related IMAP4 answers
     folders   => $folders,   # Mail::Box::Identity
     inbox     => $inbox,     # Mail::Box
     delimiter => '#'
-    );
+  );
 
   my $imap = Mail::Server::IMAP4::List->new(user => $user);
   print $imap->list(...);        # for LIST command
@@ -31,7 +30,7 @@ Mail::Server::IMAP4::List - folder related IMAP4 answers
 
 =section Constructors
 
-=c_method new $user
+=c_method new %options
 
 Create a (temporary) object to handle the LIST requests for
 a certain user, based upon a set of folders.  The data is kept by
@@ -54,7 +53,7 @@ user. Some Mail::Box::Identity OBJECT is needed.
 =default inbox    <from user>
 For now, only used to see whether there is an inbox, so a truth value will
 do.  This may change in the future.  By default, the flag is set if
-$user inbox is defined.
+P<user> inbox is defined.
 
 =option  user     OBJECT
 =default user     undef
@@ -64,13 +63,15 @@ must get reported.
 
 sub new($)
 {	my ($class, %args) = @_;
+	(bless {}, $class)->init(\%args);
+}
 
-	my $self = bless {}, $class;
-
-	my $user = $self->{MSIL_user} = $args{user};
-	$self->{MSIL_folders} = $args{folders};
-	$self->{MSIL_inbox}   = $args{inbox};
-	$self->{MSIL_delim}   = exists $args{delimiter} ? $args{delimiter} : '/';
+sub init($)
+{	my ($self, $args) = @_;
+	my $user = $self->{MSIL_user} = $args->{user};
+	$self->{MSIL_folders} = $args->{folders};
+	$self->{MSIL_inbox}   = $args->{inbox};
+	$self->{MSIL_delim}   = exists $args->{delimiter} ? $args->{delimiter} : '/';
 	$self;
 }
 

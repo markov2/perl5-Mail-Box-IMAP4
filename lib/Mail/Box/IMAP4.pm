@@ -407,10 +407,6 @@ because that's what the protocol wants.  However, some options to M<new()>
 may delay that to boost performance.  This method will, when the folder is
 being closed, write that info after all.
 
-=option save_deleted BOOLEAN
-You may be able to save the messages which are flagged for deletion now,
-but they will be removed anyway when the folder is closed.
-
 =notice Impossible to keep deleted messages in IMAP
 Some folder type have a 'deleted' flag which can be stored in the folder to
 be performed later.  The folder keeps that knowledge even when the folder
