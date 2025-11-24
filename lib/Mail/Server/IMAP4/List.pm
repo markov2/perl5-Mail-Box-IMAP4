@@ -8,6 +8,8 @@ package Mail::Server::IMAP4::List;
 use strict;
 use warnings;
 
+use Log::Report 'mail-box-imap4';
+
 #--------------------
 =chapter NAME
 

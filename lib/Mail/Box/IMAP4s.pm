@@ -9,7 +9,8 @@ use parent 'Mail::Box::IMAP4';
 use strict;
 use warnings;
 
-use IO::Socket::IP;
+use Log::Report     'mail-box-imap4';
+
 use IO::Socket::SSL qw/SSL_VERIFY_NONE/;
 
 #--------------------

@@ -9,7 +9,7 @@ use base 'Mail::Message::Head';
 use warnings;
 use strict;
 
-use Date::Parse;
+use Log::Report 'mail-box-imap4';
 
 #--------------------
 =chapter NAME
@@ -78,9 +78,7 @@ sub get($;$)
 	{	$self->addNoRealize($_) for @fields
 	}
 
-	  defined $index ? $fields[$index]
-	: wantarray      ? @fields
-	:                  $fields[0];
+	defined $index ? $fields[$index] : wantarray ? @fields : $fields[0];
 }
 
 sub guessBodySize()  {undef}

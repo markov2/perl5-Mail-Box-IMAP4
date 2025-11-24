@@ -4,10 +4,12 @@
 #oodist: testing, however the code of this development version may be broken!
 
 package Mail::Server::IMAP4::Search;
-use base 'Mail::Box::Search';
+use parent 'Mail::Box::Search';
 
 use strict;
 use warnings;
+
+use Log::Report 'mail-box-imap4';
 
 #--------------------
 =chapter NAME

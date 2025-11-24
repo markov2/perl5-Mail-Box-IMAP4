@@ -9,10 +9,12 @@ use parent 'Mail::Server';
 use strict;
 use warnings;
 
-use Mail::Server::IMAP4::List;
-use Mail::Server::IMAP4::Fetch;
-use Mail::Server::IMAP4::Search;
-use Mail::Transport::IMAP4;
+use Log::Report 'mail-box-imap4';
+
+use Mail::Server::IMAP4::List   ();
+use Mail::Server::IMAP4::Fetch  ();
+use Mail::Server::IMAP4::Search ();
+use Mail::Transport::IMAP4      ();
 
 #--------------------
 =chapter NAME

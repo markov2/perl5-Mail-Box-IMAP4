@@ -4,12 +4,14 @@
 #oodist: testing, however the code of this development version may be broken!
 
 package Mail::Box::IMAP4::Message;
-use base 'Mail::Box::Net::Message';
+use parent 'Mail::Box::Net::Message';
 
 use strict;
 use warnings;
 
-use Date::Parse 'str2time';
+use Log::Report 'mail-box-imap4';
+
+use Date::Parse qw/str2time/;
 
 #--------------------
 =chapter NAME
@@ -35,7 +37,7 @@ as well.
 =default body_type Mail::Message::Body::Lines
 
 =option  write_labels BOOLEAN
-=default write_labels <true>
+=default write_labels true
 When a label is changed or its value read, using M<label()>, that info
 should be sent to the IMAP server.  But, this action could be superfluous,
 for instance because the label was already set or clear, and communication
@@ -43,16 +45,16 @@ is expensive.  On the other hand, someone else may use IMAP to make
 changes in the same folder, and will get the updates too late or never...
 
 =option  cache_labels BOOLEAN
-=default cache_labels <false>
+=default cache_labels false
 All standard IMAP labels can be cached on the local server to improve
 speed.  This has the same dangers as setting P<write_labels> to false.
 The caching starts when the first label of the message was read.
 
 =option  cache_head BOOLEAN
-=default cache_head <false>
+=default cache_head false
 
 =option  cache_body BOOLEAN
-=default cache_body <false>
+=default cache_body false
 
 =cut
 
@@ -152,7 +154,7 @@ sub labels()
 {	my $self   = shift;
 	my $id     = $self->unique;
 	my $labels = $self->SUPER::labels;
-	$labels    = { %$labels } unless $self->{MBIM_cache_labels};
+	$labels    = +{ %$labels } unless $self->{MBIM_cache_labels};
 
 	if($id && !exists $labels->{seen})
 	{	my $imap = $self->folder->transporter or return;

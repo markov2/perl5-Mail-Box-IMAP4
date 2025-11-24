@@ -9,6 +9,8 @@ use base 'Mail::Box::Net';
 use strict;
 use warnings;
 
+use Log::Report 'mail-box-imap4';
+
 use Mail::Box::IMAP4::Head        ();
 use Mail::Box::IMAP4::Message     ();
 use Mail::Box::Parser::Perl       ();
@@ -16,7 +18,7 @@ use Mail::Message::Head::Complete ();
 use Mail::Message::Head::Delayed  ();
 use Mail::Transport::IMAP4        ();
 
-use Scalar::Util 'weaken';
+use Scalar::Util   qw/weaken/;
 
 #--------------------
 =chapter NAME
@@ -40,6 +42,12 @@ Mail::Box::IMAP4 - handle IMAP4 folders as client
 Maintain a folder which has its messages stored on a remote server.  The
 communication between the client application and the server is implemented
 using the IMAP4 protocol.  See also Mail::Server::IMAP4.
+
+B<Be aware:>
+This module versions 4.0 and up is not fully compatible with older releases:
+mainly the exception handling has changed.  When you need to upgrade, please
+read F<https://github.com/markov2/perl5-Mail-Box/wiki/>
+B<Version 3 is still maintained> and may see new releases as well.
 
 This class uses Mail::Transport::IMAP4 to hide the transport of
 information, and focusses solely on the correct handling of messages
@@ -266,10 +274,7 @@ sub readMessages(@)
 	my $name  = $self->name;
 	return $self if $name eq '/';
 
-	my $imap  = $self->transporter;
-	defined $imap or return ();
-
-	my @log   = $self->logSettings;
+	my $imap  = $self->transporter // return;
 	my $seqnr = 0;
 
 	my $cl    = $self->{MBI_c_labels} ne 'NO';
@@ -283,7 +288,7 @@ sub readMessages(@)
 		or return $self;
 
 	foreach my $id ($imap->ids)
-	{	my $head    = $ht->new(@log, @ho);
+	{	my $head    = $ht->new(@ho);
 		my $message = $args{message_type}->new(
 			head      => $head,
 			unique    => $id,
@@ -296,7 +301,7 @@ sub readMessages(@)
 			cache_body   => ($ch ne 'NO'),
 		);
 
-		my $body    = $args{body_delayed_type}->new(@log, message => $message);
+		my $body    = $args{body_delayed_type}->new(message => $message);
 		$message->storeBody($body);
 		$self->storeMessage($message);
 	}
@@ -308,7 +313,7 @@ sub readMessages(@)
 Read the header for the specified message from the remote server.
 undef is returned in case the message disappeared.
 
-=warning Message $uidl disappeared from $folder.
+=warning message {id} disappeared from {folder}.
 Trying to get the specific message from the server, but it appears to be gone.
 =cut
 
@@ -319,14 +324,14 @@ sub getHead($)
 	my @fields = $imap->getFields($uidl, 'ALL');
 
 	unless(@fields)
-	{	$self->log(WARNING => "Message $uidl disappeared from $self.");
+	{	warning __x"message {id} disappeared from {folder}.", id => $uidl, folder => "$self";
 		return;
 	}
 
 	my $head = $self->{MB_head_type}->new;
 	$head->addNoRealize($_) for @fields;
 
-	$self->log(PROGRESS => "Loaded head of $uidl.");
+	trace "Loaded head of $uidl.";
 	$head;
 }
 
@@ -336,15 +341,15 @@ Read all data for the specified message from the remote server.
 Return head and body of the mesasge as list, or an empty list
 if the $message disappeared from the server.
 
-=warning Message $uidl disappeared from $folder.
+=warning message $id disappeared from $folder.
 Trying to get the specific message from the server, but it appears to be
 gone.
 
-=warning Cannot find head back for $uidl in $folder.
+=warning cannot find head back for $id in $folder.
 The header was read before, but now seems empty: the IMAP4 server does
 not produce the header lines anymore.
 
-=warning Cannot read body for $uidl in $folder.
+=warning cannot read body for $id in $folder.
 The header of the message was retrieved from the IMAP4 server, but the
 body is not read, for an unknown reason.
 
@@ -357,7 +362,7 @@ sub getHeadAndBody($)
 	my $lines = $imap->getMessageAsString($uid);
 
 	unless(defined $lines)
-	{	$self->log(WARNING => "Message $uid disappeared from $self.");
+	{	warning __x"message {id} disappeared from {folder}.", id => $uid, folder => "$self";
 		return ();
 	}
 
@@ -368,21 +373,21 @@ sub getHeadAndBody($)
 
 	my $head = $message->readHead($parser);
 	unless(defined $head)
-	{	$self->log(WARNING => "Cannot find head back for $uid in $self.");
+	{	warning __x"cannot find head back for {id} in {folder}.", id => $uid, folder => $self;
 		$parser->stop;
 		return ();
 	}
 
 	my $body = $message->readBody($parser, $head);
 	unless(defined $body)
-	{	$self->log(WARNING => "Cannot read body for $uid in $self.");
+	{	warning __x"cannot read body for {id} in {folder}.", id => $uid, folder => $self;
 		$parser->stop;
 		return ();
 	}
 
 	$parser->stop;
 
-	$self->log(PROGRESS => "Loaded message $uid.");
+	trace "loaded message $uid.";
 	($head, $body->contentInfoFrom($head));
 }
 
@@ -392,9 +397,7 @@ sub getHeadAndBody($)
 
 sub body(;$)
 {	my $self = shift;
-	unless(@_)
-	{	my $body = $self->{MBI_cache_body} ? $self->SUPER::body : undef;
-	}
+	@_ or return $self->{MBI_cache_body} ? $self->SUPER::body : undef;
 
 	$self->unique();
 	$self->SUPER::body(@_);
@@ -407,7 +410,7 @@ because that's what the protocol wants.  However, some options to M<new()>
 may delay that to boost performance.  This method will, when the folder is
 being closed, write that info after all.
 
-=notice Impossible to keep deleted messages in IMAP
+=notice impossible to keep deleted messages in IMAP
 Some folder type have a 'deleted' flag which can be stored in the folder to
 be performed later.  The folder keeps that knowledge even when the folder
 is rewritten.  Well, IMAP4 cannot play that trick.
@@ -418,10 +421,10 @@ sub write(@)
 {	my ($self, %args) = @_;
 	my $imap  = $self->transporter or return;
 
-	$self->SUPER::write(%args, transporter => $imap) or return;
+	$self->SUPER::write(%args, transporter => $imap);
 
 	if($args{save_deleted})
-	{	$self->log(NOTICE => "Impossible to keep deleted messages in IMAP");
+	{	notice __x"impossible to keep deleted messages in IMAP";
 	}
 	else { $imap->destroyDeleted($self->name) }
 
@@ -503,8 +506,8 @@ The IMAP4 handler has the current folder selected.
 When an $object is specified, it is set to be the transporter from
 that moment on.  The $object must extend Mail::Transport::IMAP4.
 
-=error No IMAP4 transporter configured
-=error Couldn't select IMAP4 folder $name
+=error no IMAP4 transporter configured.
+=error couldn't select IMAP4 folder $name.
 =cut
 
 sub transporter(;$)
@@ -512,26 +515,21 @@ sub transporter(;$)
 
 	my $imap;
 	if(@_)
-	{	$imap = $self->{MBI_transport} = shift;
-		defined $imap or return;
+	{	$imap = $self->{MBI_transport} = shift // return;
 	}
 	else
 	{	$imap = $self->{MBI_transport};
 	}
 
-	unless(defined $imap)
-	{	$self->log(ERROR => "No IMAP4 transporter configured");
-		return undef;
-	}
+	defined $imap
+		or error __x"no IMAP4 transporter configured.";
 
 	my $name = $self->name;
 
-	$self->{MBI_selectable} = $imap->currentFolder($name);
-	return $imap
-		if defined $self->{MBI_selectable};
+	$self->{MBI_selectable} = $imap->currentFolder($name)
+		or error "couldn't select IMAP4 folder {name}.", name => $name;
 
-	$self->log(ERROR => "Couldn't select IMAP4 folder $name");
-	undef;
+	$imap;
 }
 
 

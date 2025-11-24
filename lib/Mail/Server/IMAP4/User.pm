@@ -4,10 +4,12 @@
 #oodist: testing, however the code of this development version may be broken!
 
 package Mail::Server::IMAP4::User;
-use base 'Mail::Box::Manage::User';
+use parent 'Mail::Box::Manage::User';
 
 use strict;
 use warnings;
+
+use Log::Report 'mail-box-imap4';
 
 #--------------------
 =chapter NAME
@@ -79,7 +81,7 @@ types, will be ignored here: the user's index contains the required details.
 =example how to delete a folder
   print "no xyz (anymore)\n" if $user->delete('xyz');
 
-=error Unable to remove folder $dir
+=fault unable to remove folder {$name}
 =cut
 
 sub delete($)
@@ -110,7 +112,7 @@ sub _delete($$)
 	if(my $dir = $info->{Directory})
 	{	# Bluntly try to remove, but error is not set
 		if(remove(\1, $dir) != 0 && -d $dir)
-		{	$self->log(error => "Unable to remove folder $dir");
+		{	fault __x"Unable to remove folder {name}", name => $dir;
 			return 0;
 		}
 	}
@@ -125,10 +127,10 @@ Creates a new folder with the specified name.  Folder info is returned,
 which will be very simple.  In the accidental case that the folder already
 exists, a warning will be issued, and that folder's data returned.
 
-=warning Folder $name already exists, creation skipped
-=error   Cannot create folder directory $dir: $!
-=error   Cannot write name for folder in $file: $!
-=error   Failed writing folder name to $file: $!
+=warning folder $name already exists, creation skipped.
+=fault   cannot create folder directory $dir: $!
+=fault   cannot write name for folder in $file: $!
+=fault   failed writing folder name to $file: $!
 =cut
 
 sub create($@)
@@ -136,7 +138,7 @@ sub create($@)
 	my $index   = $self->index->startModify or return undef;
 
 	if(my $info = $index->folder($name))
-	{	$self->log(WARNING => "Folder $name already exists, creation skipped");
+	{	warning __x"folder {name} already exists, creation skipped.", name => $name;
 		return $info;
 	}
 
@@ -147,28 +149,19 @@ sub create($@)
 	# work, we check whether we did too much. This may safe an NFS stat.
 
 	my $dir     = $self->home . '/F' . $uniq;
-	unless(mkdir $dir, 0750)
-	{	my $rc = "$!";
-		unless(-d $dir)   # replaces $!
-		{	$self->log(ERROR => "Cannot create folder directory $dir: $rc");
-			return undef;
-		}
-	}
+	-d $dir or mkdir $dir, 0750
+		or fault __x"cannot create folder directory {dir}", dir => $dir;
 
 	# Write folder name in directory, for recovery purposes.
 	my $namefile = "$dir/name";
 	my $namefh;
-	unless(open $namefh, '>:encoding(utf-8)', $namefile)
-	{	$self->log(ERROR => "Cannot write name for folder in $namefile: $!");
-		return undef;
-	}
+	open $namefh, '>:encoding(utf-8)', $namefile
+		or fault __x"cannot write name for folder in {file}", file => $namefile;
 
 	$namefh->print("$name\n");
 
-	unless($namefh->close)
-	{	$self->log(ERROR => "Failed writing folder name to $namefile: $!");
-		return undef;
-	}
+	$namefh->close
+		or fault __x"failed writing folder name to {file}", file => $namefile;
 
 	# Add folder to the index
 
