@@ -2,8 +2,11 @@ use ExtUtils::MakeMaker;
 
 require 5.016;
 
+use warnings;
+use strict;
+
 # Use command 'oodist' to produce your whole software release.
-my $version = '3.010';
+my $version  = '3.010';
 my $git      = "https://github.com/markov2/perl5-Mail-Box-IMAP4";
 my $publish  = "../public_html/mail-box-imap4";
 my $homepage = "http://perl.overmeer.net/CPAN/";
@@ -63,48 +66,22 @@ my %prereq = (
 	'Scalar::Util'     => 0,
 	'Test::More'       => 0,
 
-	'Mail::Box'                    => 3.007,
-	'Mail::Box::Manage::User'      => 3,
-	'Mail::Box::Net'               => 3,
-	'Mail::Box::Search'            => 3,
-	'Mail::Box::Test'              => 3,
-	'Mail::Message'                => 3.013,
-	'Mail::Message::Body::Lines'   => 3,
-	'Mail::Message::Head::Complete'=> 3,
-	'Mail::Message::Head::Delayed' => 3,
-	'Mail::Server'                 => 3,
-	'Mail::Transport::Receive'     => 3.004,
+	'Mail::Box'                    => '3.007, <4.0',
+	'Mail::Box::Manage::User'      => '3, <4.0',
+	'Mail::Box::Net'               => '3, <4.0',
+	'Mail::Box::Search'            => '3, <4.0',
+	'Mail::Box::Test'              => '3, <4.0',
+	'Mail::Message'                => '3.013, <4.0',
+	'Mail::Message::Body::Lines'   => '3, <4.0',
+	'Mail::Message::Head::Complete'=> '3, <4.0',
+	'Mail::Message::Head::Delayed' => '3, <4.0',
+	'Mail::Server'                 => '3, <4.0',
+	'Mail::Transport::Receive'     => '3.004, <4.0',
 );
-
-foreach my $module (sort keys %prereq)
-{	my $reqversion = $prereq{$module};
-	eval "require $module";
-
-	if($@ && $@ =~ m/^Can't locate /)
-	{	print "    $module is not yet installed\n" }
-	elsif($@)
-	{	print "    $module produced an error:\n$@";
-		push @errors, $module;
-	}
-	elsif($module->VERSION < $reqversion)
-	{	print "    $module version ", $module->VERSION, " is outdated; requires $reqversion\n";
-	}
-	else
-	{	print "    $module version ", $module->VERSION, " is ok (required is $reqversion)\n";
-	}
-}
-
-if($errors)
-{	die <<'FIX';
-*** ERROR! You have to install @errors manually,
-*** before you can retry to install MailBox.
-FIX
-	exit 1;
-}
 
 WriteMakefile
 	NAME       => 'Mail::Box::IMAP4',
-	VERSION    => $VERSION,
+	VERSION    => $version,
 	AUTHOR     => 'Mark Overmeer',
 	ABSTRACT   => 'Mail::Box connector via IMAP4',
 	PREREQ_PM  => \%prereq,
