@@ -16,7 +16,7 @@ use Mail::Message::Head::Complete ();
 use Mail::Message::Head::Delayed  ();
 use Mail::Transport::IMAP4        ();
 
-use Scalar::Util 'weaken';
+use Scalar::Util   qw/weaken/;
 
 #--------------------
 =chapter NAME
@@ -45,6 +45,10 @@ This class uses Mail::Transport::IMAP4 to hide the transport of
 information, and focusses solely on the correct handling of messages
 within a IMAP4 folder.  More than one IMAP4 folder can be handled by
 one single IMAP4 connection.
+
+B<This is a maintenance release for the old interface>.  Read
+F<https://github.com/markov2/perl5-Mail-Box/wiki/> how
+to move towards version 4.
 
 =chapter METHODS
 
