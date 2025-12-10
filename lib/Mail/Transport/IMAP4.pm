@@ -267,9 +267,7 @@ sub imapClient(;$)
 
 =method createImapClient $class, %options
 Create an object of $class, which extends L<Mail::IMAPClient>.
-
-All %options will be passed to the constructor (new) of $class.
-
+=error cannot create imap client: {error}
 =cut
 
 sub createImapClient($@)
@@ -277,21 +275,14 @@ sub createImapClient($@)
 
 	my ($host, $port) = $self->remoteHost;
 
-	my $debug_level = $self->logPriority('DEBUG')+0;
-	if($self->log <= $debug_level || $self->trace <= $debug_level)
-	{	tie *dh, 'Mail::IMAPClient::Debug', $self;
-		push @args, Debug => 1, Debug_fh => \*dh;
-	}
-
 	my $client = $class->new(
 		Server => $host, Port => $port,
 		User   => undef, Password => undef,   # disable auto-login
 		Uid    => 1,                          # Safer
 		Peek   => 1,                          # Don't set \Seen automaticly
 		@args,
-	);
+	) or error __x"cannot create imap client: {error}", error => $@;
 
-	$self->log(ERROR => $@), return undef if $@;
 	$client;
 }
 
