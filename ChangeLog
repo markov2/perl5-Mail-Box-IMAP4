@@ -13,6 +13,9 @@ version 4.01:
 	Fixes:
 	- missed some old log calls.
 
+	Improvements:
+	- test loading of all modules.
+
 version 4.000: Wed 10 Dec 18:44:14 CET 2025
 
 	Changes:
