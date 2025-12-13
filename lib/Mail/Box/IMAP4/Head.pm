@@ -9,7 +9,7 @@ use base 'Mail::Message::Head';
 use warnings;
 use strict;
 
-use Log::Report 'mail-box-imap4';
+use Log::Report 'mail-box-imap4', import => [];
 
 #--------------------
 =chapter NAME

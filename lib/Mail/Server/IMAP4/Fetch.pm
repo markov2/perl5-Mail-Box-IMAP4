@@ -8,7 +8,7 @@ package Mail::Server::IMAP4::Fetch;
 use strict;
 use warnings;
 
-use Log::Report 'mail-box-imap4';
+use Log::Report 'mail-box-imap4', import => [];
 
 use Date::Parse   ();
 use Digest::MD5   qw/md5_base64/;

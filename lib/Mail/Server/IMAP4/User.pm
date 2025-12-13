@@ -9,7 +9,7 @@ use parent 'Mail::Box::Manage::User';
 use strict;
 use warnings;
 
-use Log::Report 'mail-box-imap4';
+use Log::Report 'mail-box-imap4', import => [ qw/__x fault warning/ ];
 
 #--------------------
 =chapter NAME

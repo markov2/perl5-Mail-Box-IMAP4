@@ -9,7 +9,7 @@ use parent 'Mail::Box::Net::Message';
 use strict;
 use warnings;
 
-use Log::Report 'mail-box-imap4';
+use Log::Report 'mail-box-imap4', import => [];
 
 use Date::Parse qw/str2time/;
 

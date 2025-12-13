@@ -9,7 +9,7 @@ use parent 'Mail::Transport::Receive';
 use strict;
 use warnings;
 
-use Log::Report 'mail-box-imap4';
+use Log::Report 'mail-box-imap4', import => [ qw/__x error notice trace warning/ ];
 
 use Digest::HMAC_MD5;   # only availability check for CRAM_MD5
 use Mail::IMAPClient  ();

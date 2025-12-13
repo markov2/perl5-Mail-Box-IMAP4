@@ -9,7 +9,7 @@ use parent 'Mail::Server';
 use strict;
 use warnings;
 
-use Log::Report 'mail-box-imap4';
+use Log::Report 'mail-box-imap4', import => [];
 
 use Mail::Server::IMAP4::List   ();
 use Mail::Server::IMAP4::Fetch  ();

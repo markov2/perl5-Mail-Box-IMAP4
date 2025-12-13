@@ -9,7 +9,7 @@ use parent 'Mail::Box::IMAP4';
 use strict;
 use warnings;
 
-use Log::Report     'mail-box-imap4';
+use Log::Report     'mail-box-imap4', import => [];
 
 use IO::Socket::SSL qw/SSL_VERIFY_NONE/;
 
@@ -41,7 +41,7 @@ See Mail::Box::IMAP4.
 =option starttls BOOLEAN
 =default starttls false
 
-=option  ssl HASH|ARRAY
+=option  ssl \%config|\@pairs
 =default ssl { SSL_verify_mode => SSL_VERIFY_NONE }
 Parameters to initialize the SSL connection.
 
