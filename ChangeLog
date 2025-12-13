@@ -8,7 +8,7 @@
 
 #XXX TODO: connect client debugger with Log::Report needs.
 
-version 4.01:
+version 4.01: Sat 13 Dec 12:21:57 CET 2025
 
 	Fixes:
 	- missed some old log calls.
