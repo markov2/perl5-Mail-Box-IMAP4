@@ -48,7 +48,7 @@ Returns the filename of the index file.
 sub indexFilename() { $_[0]->{MSNU_indexfile} };
 
 #--------------------
-=section Manage folders
+=section Manage existing folders
 
 =method folderInfo $name
 Returns a hash with folder information.  In normal circumstances, it is
