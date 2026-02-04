@@ -66,16 +66,9 @@ my %prereq = (
 	'Mail::IMAPClient' => '3.42',
 	'Scalar::Util'     => 0,
 
-	'Mail::Box'                    => '4.0',
-	'Mail::Box::Manage::User'      => '4.0',
-	'Mail::Box::Net'               => '4.0',
-	'Mail::Box::Search'            => '4.0',
-	'Mail::Message'                => '4.0',
-	'Mail::Message::Body::Lines'   => '4.0',
-	'Mail::Message::Head::Complete'=> '4.0',
-	'Mail::Message::Head::Delayed' => '4.0',
-	'Mail::Server'                 => '4.0',
-	'Mail::Transport::Receive'     => '4.0',
+	'Mail::Box'        => '4.0',
+	'Mail::Message'    => '4.0',
+	'Mail::Transport'  => '4.0',
 );
 
 WriteMakefile
