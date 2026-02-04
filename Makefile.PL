@@ -52,7 +52,7 @@ my %oodist   = (
 	],
 );
 
-my %prereq = (
+my %requires = (
 	'Date::Parse'      => 0,
 	'Digest::HMAC_MD5' => 0,
 	'Digest::MD5'      => 0,
@@ -71,12 +71,13 @@ my %prereq = (
 	'Mail::Transport'  => '4.0',
 );
 
+my %optional;
+
 WriteMakefile
 	NAME       => 'Mail::Box::IMAP4',
 	VERSION    => $version,
 	AUTHOR     => 'Mark Overmeer',
 	ABSTRACT   => 'Mail::Box connector via IMAP4',
-	PREREQ_PM  => \%prereq,
 	LICENSE    => 'perl_5',
 
 	META_MERGE => {
@@ -91,6 +92,10 @@ WriteMakefile
 			license  => [ 'http//dev.perl.org/licenses/' ],
 		},
 		prereqs => {
+			runtime => {
+				requires   => \%requires,
+				recommends => \%optional,
+			},
 			develop => {
 				requires => {
 					'OODoc' => '3.00',
